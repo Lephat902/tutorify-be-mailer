@@ -1,13 +1,17 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { UserDto } from 'src/dto/user.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailService {
-  constructor(private mailerService: MailerService) {}
+  constructor(
+    private readonly mailerService: MailerService,
+    private readonly configService: ConfigService,
+    ) {}
 
   async sendUserConfirmation(user: UserDto, token: string) {
-    const url = `tutorify.com/auth/confirm?token=${token}`;
+    const url = `${this.configService.get('BASE_DOMAIN')}/auth/confirm?token=${token}`;
 
     await this.mailerService.sendMail({
       from: '"Support Team" <noreply@tutorify.com>', // override default from

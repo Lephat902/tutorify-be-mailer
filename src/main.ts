@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
+import { GlobalExceptionsFilter } from './global-exception-filter';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
@@ -11,10 +12,12 @@ async function bootstrap() {
       queueOptions: {
         durable: false,
       },
-//      noAck: false,
-//      prefetchCount: 1,
     },
   });
+
+  // Use the global exception filter
+  app.useGlobalFilters(new GlobalExceptionsFilter());
+
   await app.listen();
 }
 

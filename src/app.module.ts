@@ -10,6 +10,7 @@ import { MailController } from './mail.controller';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // no need to import into other modules
+      envFilePath: ['.env', '.env.example'],
     }),
     MailerModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
