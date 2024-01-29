@@ -6,9 +6,9 @@ FROM node:${NODE_VERSION}-alpine AS base
 # BUILD FOR LOCAL DEVELOPMENT
 ###################
 
-WORKDIR /usr/src/app
-
 FROM base AS development
+
+WORKDIR /usr/src/app
 
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure copying both package.json AND package-lock.json (when available).
@@ -30,7 +30,7 @@ USER node
 
 FROM development AS build
 
-#WORKDIR /usr/src/app
+WORKDIR /usr/src/app
 
 COPY --chown=node:node package*.json ./
 
@@ -60,7 +60,6 @@ FROM base AS production
 # Copy the bundled code from the build stage to the production image
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
-COPY --chown=node:node --from=build /usr/src/app/package*.json ./
 
 # Start the server using the production build
 CMD [ "node", "dist/main.js" ]
