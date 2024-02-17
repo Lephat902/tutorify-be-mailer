@@ -8,7 +8,7 @@ export class MailService {
   constructor(
     private readonly mailerService: MailerService,
     private readonly configService: ConfigService,
-    ) {}
+  ) { }
 
   async sendUserConfirmation(user: UserDto, token: string) {
     const url = `${this.configService.get('BASE_DOMAIN')}/auth/confirm?token=${token}`;

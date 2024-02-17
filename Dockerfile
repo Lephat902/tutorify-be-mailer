@@ -18,7 +18,7 @@ RUN npm i -g @nestjs/cli
 COPY --chown=node:node package*.json ./
 
 # Install ALL app dependencies, including 'devDependencies'
-RUN npm ci --legacy-peer-deps
+RUN npm ci
 
 # Bundle app source
 COPY --chown=node:node . .
@@ -52,8 +52,10 @@ RUN npm run build
 
 # Set NODE_ENV environment variable
 ENV NODE_ENV production
+
 # Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is AS optimized AS possible
-RUN npm ci --only=production --legacy-peer-deps && npm cache clean --force
+RUN npm ci --only=production && npm cache clean --force
+
 USER node
 
 ###################
