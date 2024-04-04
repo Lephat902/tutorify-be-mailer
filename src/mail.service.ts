@@ -11,7 +11,7 @@ export class MailService {
   ) { }
 
   async sendUserConfirmation(user: UserDto, token: string) {
-    const url = `${this.configService.get('BASE_DOMAIN')}/confirm-email?token=${token}`;
+    const url = `${this.configService.get('EMAIL_CONFIRMATION_PATH')}${token}`;
 
     await this.mailerService.sendMail({
       from: '"Support Team" <noreply@tutorify.com>', // override default from
