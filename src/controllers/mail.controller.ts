@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { MailService } from './mail.service';
+import { MailService } from '../mail.service';
 import { UserDto } from 'src/dto/user.dto';
 
 @Controller()

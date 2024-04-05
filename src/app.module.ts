@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { join } from 'path';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailService } from './mail.service';
-import { MailController } from './mail.controller';
+import { Controllers } from './controllers';
+import { PATH_TO_TEMPLATES_DIR } from './constants';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { MailController } from './mail.controller';
           from: `"No Reply" <${config.get('MAIL_FROM')}>`,
         },
         template: {
-          dir: join(__dirname, 'templates'),
+          dir: PATH_TO_TEMPLATES_DIR,
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
@@ -38,6 +38,6 @@ import { MailController } from './mail.controller';
     }),
   ],
   providers: [MailService],
-  controllers: [MailController]
+  controllers: Controllers,
 })
 export class AppModule {}

@@ -1,4 +1,4 @@
-export class UserDto {
+export type UserDto = {
     email: string;
     name: string;
 }

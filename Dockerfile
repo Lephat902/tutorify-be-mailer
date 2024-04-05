@@ -35,6 +35,15 @@ FROM development AS build
 # Set NODE_ENV environment variable
 ENV NODE_ENV production
 
+# Switch to shared dir
+WORKDIR /usr/src/shared
+
+# Copy temp 'shared' dir
+COPY --chown=node:node ./shared .
+
+# Install packages of shared dir for 'npm run build' below to succeed, those packages will not be included in built image
+RUN npm ci --only=production
+
 # Switch to app dir
 WORKDIR /usr/src/app
 
@@ -60,4 +69,4 @@ COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 USER node
 
 # Start the server using the production build
-CMD [ "node", "dist/main.js" ]
+CMD [ "node", "dist/app/src/main.js" ]

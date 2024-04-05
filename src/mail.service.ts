@@ -2,6 +2,12 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { UserDto } from 'src/dto/user.dto';
 import { ConfigService } from '@nestjs/config';
+import { MailType, MailOptions } from './constants';
+
+type MailContext = {
+  name: string,
+  url?: string,
+}
 
 @Injectable()
 export class MailService {
@@ -12,16 +18,31 @@ export class MailService {
 
   async sendUserConfirmation(user: UserDto, token: string) {
     const url = `${this.configService.get('EMAIL_CONFIRMATION_PATH')}${token}`;
+    await this.sendMail(user, MailType.EMAIL_CONFIRMATION, {
+      name: user.name,
+      url
+    });
+  }
+
+  async sendTutorApproved(user: UserDto) {
+    await this.sendMail(user, MailType.TUTOR_APPROVED, {
+      name: user.name,
+    });
+  }
+
+  async sendTutorRejected(user: UserDto) {
+    await this.sendMail(user, MailType.TUTOR_REJECTED, {
+      name: user.name,
+    });
+  }
+
+  private async sendMail(user: UserDto, type: MailType, context: MailContext) {
+    const mailOptions = MailOptions[type];
 
     await this.mailerService.sendMail({
-      from: '"Support Team" <noreply@tutorify.com>', // override default from
+      ...mailOptions,
       to: user.email,
-      subject: 'Welcome to Tutorify! Confirm your Email',
-      template: './confirmation',
-      context: {
-        name: user.name,
-        url,
-      },
+      context,
     });
   }
 }
