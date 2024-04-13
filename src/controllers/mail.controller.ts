@@ -13,4 +13,11 @@ export class MailController {
     await this.mailService.sendUserConfirmation(user, token);
     return true;
   }
+
+  @MessagePattern({ cmd: 'sendNewPassword' })
+  async sendNewPassword(data: { user: UserDto; newPassword: string }) {
+    const { user, newPassword } = data;
+    await this.mailService.sendNewPassword(user, newPassword);
+    return true;
+  }
 }

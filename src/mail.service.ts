@@ -7,6 +7,7 @@ import { MailType, MailOptions } from './constants';
 type MailContext = {
   name: string,
   url?: string,
+  newPassword?: string,
 }
 
 @Injectable()
@@ -21,6 +22,13 @@ export class MailService {
     await this.sendMail(user, MailType.EMAIL_CONFIRMATION, {
       name: user.name,
       url
+    });
+  }
+
+  async sendNewPassword(user: UserDto, newPassword: string) {
+    await this.sendMail(user, MailType.SEND_NEW_PASSWORD, {
+      name: user.name,
+      newPassword
     });
   }
 

@@ -5,6 +5,7 @@ export enum MailType {
     EMAIL_CONFIRMATION,
     TUTOR_APPROVED,
     TUTOR_REJECTED,
+    SEND_NEW_PASSWORD,
 }
 
 export const MailOptions: Record<
@@ -26,7 +27,12 @@ export const MailOptions: Record<
         from: '"HR Team" <noreply@tutorify.com>',
         subject: 'Inform application status',
         template: './reject-tutor',
-    }
+    },
+    [MailType.SEND_NEW_PASSWORD]: {
+        from: '"Support Team" <noreply@tutorify.com>',
+        subject: 'Your Password Reset Request',
+        template: './send-new-password',
+    },
 }
 
 Object.values(MailOptions).forEach(mailOption => {
