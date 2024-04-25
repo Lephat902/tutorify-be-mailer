@@ -2,15 +2,21 @@ import { Controller } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
 import { MailService } from '../mail.service';
 import {
+  ClassSessionCreatedEventPattern,
+  ClassSessionCreatedEventPayload,
   TutorApprovedEventPattern,
   TutorApprovedEventPayload,
   TutorRejectedEventPattern,
-  TutorRejectedEventPayload
+  TutorRejectedEventPayload,
 } from '@tutorify/shared';
+import { APIGatewayProxy } from 'src/proxies';
 
 @Controller()
 export class EventHandler {
-  constructor(private readonly mailService: MailService) { }
+  constructor(
+    private readonly mailService: MailService,
+    private readonly _APIGatewayProxy: APIGatewayProxy,
+  ) { }
 
   @EventPattern(new TutorApprovedEventPattern())
   async handleTutorApproved(payload: TutorApprovedEventPayload) {
@@ -33,6 +39,28 @@ export class EventHandler {
     await this.mailService.sendTutorRejected({
       email,
       name: fullName,
+    });
+  }
+
+  @EventPattern(new ClassSessionCreatedEventPattern())
+  async handleClassSessionCreated(payload: ClassSessionCreatedEventPayload) {
+    const { classId, classSessionId, title, startDatetime, endDatetime, createdAt } = payload;
+    console.log(`Start sending session-created notifications`);
+    const classData = await this._APIGatewayProxy.getClassById(classId);
+    const student = classData.class.student;
+    const studentFullName = `${student.firstName} ${student.middleName} ${student.lastName}`;
+    const urlToSession = `https://www.tutorify.site/courses/${classId}/mysessions/${classSessionId}`;
+
+    await this.mailService.sendSessionCreated({
+      email: student.email,
+      name: studentFullName,
+    }, {
+      classTitle: classData.class.title,
+      sessionTitle: title,
+      startDatetime: new Date(startDatetime).toUTCString(),
+      endDatetime:  new Date(endDatetime).toUTCString(),
+      createdAt:  new Date(createdAt).toUTCString(),
+      urlToSession,
     });
   }
 }

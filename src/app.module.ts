@@ -5,9 +5,12 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { MailService } from './mail.service';
 import { Controllers } from './controllers';
 import { PATH_TO_TEMPLATES_DIR } from './constants';
+import { APIGatewayProxy } from './proxies';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
+    HttpModule,
     ConfigModule.forRoot({
       isGlobal: true, // no need to import into other modules
       envFilePath: ['.env', '.env.example'],
@@ -37,7 +40,7 @@ import { PATH_TO_TEMPLATES_DIR } from './constants';
       inject: [ConfigService],
     }),
   ],
-  providers: [MailService],
+  providers: [MailService, APIGatewayProxy],
   controllers: Controllers,
 })
 export class AppModule {}

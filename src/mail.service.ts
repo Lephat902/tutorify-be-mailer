@@ -4,11 +4,22 @@ import { UserDto } from 'src/dto/user.dto';
 import { ConfigService } from '@nestjs/config';
 import { MailType, MailOptions } from './constants';
 
+type SessionEmailContent = {
+  classTitle: string,
+  sessionTitle: string,
+  startDatetime: string,
+  endDatetime: string,
+  createdAt: string,
+  urlToSession: string,
+}
+
 type MailContext = {
   name: string,
   url?: string,
   newPassword?: string,
-}
+} | SessionEmailContent & {
+  name: string,
+};
 
 @Injectable()
 export class MailService {
@@ -41,6 +52,13 @@ export class MailService {
   async sendTutorRejected(user: UserDto) {
     await this.sendMail(user, MailType.TUTOR_REJECTED, {
       name: user.name,
+    });
+  }
+
+  async sendSessionCreated(user: UserDto, sessionEmailContent: SessionEmailContent) {
+    await this.sendMail(user, MailType.CLASS_SESSION_CREATED, {
+      name: user.name,
+      ...sessionEmailContent,
     });
   }
 
