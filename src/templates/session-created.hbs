@@ -11,6 +11,10 @@
     <meta name="supported-color-schemes" content="light dark">
     <title>New Class Session Created</title>
     <style>
+        * {
+            color: #334155;
+        }
+
         p {
             margin: 0;
             margin-bottom: 16px;
@@ -91,14 +95,15 @@
                                 <table style="width: 100%" role="presentation">
                                     <tr>
                                         <td
-                                            style="border-radius: 4px; background-color: #fff; padding: 12px; text-align: left; font-size: 16px; line-height: 24px; color: #334155; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05)">
+                                            style="border-radius: 4px; background-color: #fff; padding: 12px; text-align: left; font-size: 16px; line-height: 24px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05)">
                                             <div class="header">
                                                 <img src="cid:tutorify-logo" />
                                                 <b>Tutorify</b>
                                             </div>
                                             <p>Hello {{name}},</p>
-                                            <p>We are excited to announce a new session of the class <b>{{classTitle}}</b>.
-                                             Here are the details:</p>
+                                            <p>We are excited to announce a new session of the class
+                                                <b>{{classTitle}}</b>.
+                                                Here are the details:</p>
                                             <table class="cl-session">
                                                 <tr>
                                                     <th>Session Title</th>
