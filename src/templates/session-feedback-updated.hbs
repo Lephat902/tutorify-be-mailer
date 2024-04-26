@@ -9,7 +9,7 @@
     <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
     <meta name="color-scheme" content="light dark">
     <meta name="supported-color-schemes" content="light dark">
-    <title>New Class Session Created</title>
+    <title>Class Session Feedback Updated</title>
     <style>
         * {
             color: #334155;
@@ -59,6 +59,27 @@
             color: white;
         }
 
+        blockquote {
+            background: #f9f9f9;
+            border-left: 10px solid #ccc;
+            margin: 1.5em 10px;
+            padding: 0.5em 10px;
+            quotes: "\201C" "\201D" "\2018" "\2019";
+        }
+
+        blockquote:before {
+            color: #ccc;
+            content: open-quote;
+            font-size: 4em;
+            line-height: 0.1em;
+            margin-right: 0.25em;
+            vertical-align: -0.4em;
+        }
+
+        blockquote p {
+            display: inline;
+        }
+
         @media (max-width: 600px) {
             .sm-w-full {
                 width: 100% !important;
@@ -101,25 +122,13 @@
                                                 <b>Tutorify</b>
                                             </div>
                                             <p>Hello {{name}},</p>
-                                            <p>We are excited to announce a new session of the class
-                                                <b>{{classTitle}}</b>.
-                                                Here are the details:</p>
-                                            <table class="cl-session">
-                                                <tr>
-                                                    <th>Session Title</th>
-                                                    <th>Start Time</th>
-                                                    <th>End Time</th>
-                                                </tr>
-                                                <tr>
-                                                    <td>{{sessionTitle}}</td>
-                                                    <td>{{startDatetime}}</td>
-                                                    <td>{{endDatetime}}</td>
-                                                </tr>
-                                            </table>
-                                            <p>You can access the session by clicking on the following link: <a
+                                            <p>Your tutor of class
+                                                <b>{{classTitle}}</b>
+                                                added his feedback about the session <b>{{sessionTitle}}</b>:
+                                            </p>
+                                            <blockquote>{{feedbackText}}</blockquote>
+                                            <p>For more details, please click the following link: <a
                                                     href="{{urlToSession}}">{{urlToSession}}</a></p>
-                                            <p>Looking forward to seeing you there!</p>
-
                                             <p>Best regards,</p>
                                             <p>The Tutorify Team</p>
                                         </td>

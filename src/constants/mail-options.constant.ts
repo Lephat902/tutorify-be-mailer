@@ -7,6 +7,7 @@ export enum MailType {
     TUTOR_REJECTED,
     SEND_NEW_PASSWORD,
     CLASS_SESSION_CREATED,
+    CLASS_SESSION_FEEDBACK_UPDATED,
 }
 
 export const MailOptions: Record<
@@ -38,7 +39,12 @@ export const MailOptions: Record<
         from: '"Tutorify" <noreply@tutorify.com>',
         subject: 'New class session',
         template: './session-created',
-    }
+    },
+    [MailType.CLASS_SESSION_FEEDBACK_UPDATED]: {
+        from: '"Tutorify" <noreply@tutorify.com>',
+        subject: 'Class Session Feedback Updated',
+        template: './session-feedback-updated',
+    },
 }
 
 Object.values(MailOptions).forEach(mailOption => {

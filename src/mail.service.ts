@@ -4,20 +4,29 @@ import { UserDto } from 'src/dto/user.dto';
 import { ConfigService } from '@nestjs/config';
 import { MailType, MailOptions } from './constants';
 
-type SessionEmailContent = {
+type SessionCreatedEmailContent = {
   classTitle: string,
   sessionTitle: string,
   startDatetime: string,
   endDatetime: string,
   createdAt: string,
   urlToSession: string,
-}
+};
+
+type SessionFeedbackUpdatedEmailContent = {
+  classTitle: string,
+  sessionTitle: string,
+  urlToSession: string,
+  feedbackText: string,
+};
 
 type MailContext = {
   name: string,
   url?: string,
   newPassword?: string,
-} | SessionEmailContent & {
+} | SessionCreatedEmailContent & {
+  name: string,
+} | SessionFeedbackUpdatedEmailContent & {
   name: string,
 };
 
@@ -55,10 +64,17 @@ export class MailService {
     });
   }
 
-  async sendSessionCreated(user: UserDto, sessionEmailContent: SessionEmailContent) {
+  async sendSessionCreated(user: UserDto, sessionCreatedEmailContent: SessionCreatedEmailContent) {
     await this.sendMail(user, MailType.CLASS_SESSION_CREATED, {
       name: user.name,
-      ...sessionEmailContent,
+      ...sessionCreatedEmailContent,
+    });
+  }
+
+  async sendSessionFeedbackUpdated(user: UserDto, sessionFeedbackUpdatedEmailContent: SessionFeedbackUpdatedEmailContent) {
+    await this.sendMail(user, MailType.CLASS_SESSION_FEEDBACK_UPDATED, {
+      name: user.name,
+      ...sessionFeedbackUpdatedEmailContent,
     });
   }
 

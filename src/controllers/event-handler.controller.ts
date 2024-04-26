@@ -4,6 +4,8 @@ import { MailService } from '../mail.service';
 import {
   ClassSessionCreatedEventPattern,
   ClassSessionCreatedEventPayload,
+  ClassSessionUpdatedEventPattern,
+  ClassSessionUpdatedEventPayload,
   TutorApprovedEventPattern,
   TutorApprovedEventPayload,
   TutorRejectedEventPattern,
@@ -58,9 +60,32 @@ export class EventHandler {
       classTitle: classData.class.title,
       sessionTitle: title,
       startDatetime: new Date(startDatetime).toUTCString(),
-      endDatetime:  new Date(endDatetime).toUTCString(),
-      createdAt:  new Date(createdAt).toUTCString(),
+      endDatetime: new Date(endDatetime).toUTCString(),
+      createdAt: new Date(createdAt).toUTCString(),
       urlToSession,
     });
+  }
+
+  @EventPattern(new ClassSessionUpdatedEventPattern())
+  async handleClassSessionUpdated(payload: ClassSessionUpdatedEventPayload) {
+    const { classId, classSessionId, title, updatedAt, feedbackUpdatedAt, tutorFeedback } = payload;
+    const classData = await this._APIGatewayProxy.getClassById(classId);
+    const student = classData.class.student;
+    const studentFullName = `${student.firstName} ${student.middleName} ${student.lastName}`;
+    const urlToSession = `https://www.tutorify.site/courses/${classId}/mysessions/${classSessionId}`;
+
+    console.log(updatedAt, feedbackUpdatedAt);
+    if (updatedAt === feedbackUpdatedAt) {
+      console.log(`Start sending session-feedback-updated notifications`);
+      await this.mailService.sendSessionFeedbackUpdated({
+        email: student.email,
+        name: studentFullName,
+      }, {
+        classTitle: classData.class.title,
+        sessionTitle: title,
+        urlToSession,
+        feedbackText: tutorFeedback,
+      });
+    }
   }
 }
