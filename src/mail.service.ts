@@ -4,48 +4,6 @@ import { UserDto } from 'src/dto/user.dto';
 import { ConfigService } from '@nestjs/config';
 import { MailType, MailOptions } from './constants';
 
-type SessionCreatedEmailContent = {
-  classTitle: string,
-  sessionTitle: string,
-  startDatetime: string,
-  endDatetime: string,
-  createdAt: string,
-  urlToSession: string,
-};
-
-type SessionFeedbackUpdatedEmailContent = {
-  classTitle: string,
-  sessionTitle: string,
-  urlToSession: string,
-  feedbackText: string,
-};
-
-type NewTutoringRequestEmailContent = {
-  classTitle: string,
-  urlToClass: string,
-};
-
-type NewClassApplicationEmailContent = {
-  classTitle: string,
-  urlToClass: string,
-  tutorName: string,
-  urlToTutor: string,
-};
-
-type MailContext = {
-  name: string,
-  url?: string,
-  newPassword?: string,
-} | SessionCreatedEmailContent & {
-  name: string,
-} | SessionFeedbackUpdatedEmailContent & {
-  name: string,
-} | NewTutoringRequestEmailContent & {
-  name: string,
-} | NewClassApplicationEmailContent & {
-  name: string,
-};
-
 @Injectable()
 export class MailService {
   constructor(
@@ -95,7 +53,7 @@ export class MailService {
   }
 
   async sendTutoringRequestCreated(user: UserDto, newTutoringRequestEmailContent: NewTutoringRequestEmailContent) {
-    await this.sendMail(user, MailType.TUTORING_REQUESTS_CREATED, {
+    await this.sendMail(user, MailType.TUTORING_REQUEST_CREATED, {
       name: user.name,
       ...newTutoringRequestEmailContent,
     });
@@ -105,6 +63,20 @@ export class MailService {
     await this.sendMail(user, MailType.CLASS_APPLICATION_CREATED, {
       name: user.name,
       ...newClassApplicationEmailContent,
+    });
+  }
+
+  async sendTutoringRequestAccepted(user: UserDto, tutoringRequestAcceptedEmailContent: TutoringRequestAcceptedEmailContent) {
+    await this.sendMail(user, MailType.TUTORING_REQUEST_ACCEPTED, {
+      name: user.name,
+      ...tutoringRequestAcceptedEmailContent,
+    });
+  }
+
+  async sendClassApplicationAccepted(user: UserDto, classApplicationAcceptedEmailContent: ClassApplicationAcceptedEmailContent) {
+    await this.sendMail(user, MailType.CLASS_APPLICATION_ACCEPTED, {
+      name: user.name,
+      ...classApplicationAcceptedEmailContent,
     });
   }
 

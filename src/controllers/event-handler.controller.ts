@@ -2,8 +2,11 @@ import { Controller } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
 import { MailService } from '../mail.service';
 import {
+  ApplicationStatus,
   ClassApplicationCreatedEventPattern,
   ClassApplicationCreatedEventPayload,
+  ClassApplicationUpdatedEventPattern,
+  ClassApplicationUpdatedEventPayload,
   ClassSessionCreatedEventPattern,
   ClassSessionCreatedEventPayload,
   ClassSessionUpdatedEventPattern,
@@ -122,6 +125,43 @@ export class EventHandler {
         tutorName: tutorFullName,
         urlToTutor
       });
+    }
+  }
+
+  @EventPattern(new ClassApplicationUpdatedEventPattern())
+  async handleApplicationStatusChanged(payload: ClassApplicationUpdatedEventPayload) {
+    const { classId, tutorId, newStatus, isDesignated } = payload;
+    const classAndTutor = await this._APIGatewayProxy.getDataByApplicationCreatedHandler(classId, tutorId);
+    const urlToCourse = `https://www.tutorify.site/courses/${classId}`;
+    const urlToMyClasses = 'https://www.tutorify.site/myclasses';
+    const tutor = classAndTutor.tutor;
+    const tutorFullName = `${tutor.firstName} ${tutor.middleName} ${tutor.lastName}`;
+
+    if (newStatus === ApplicationStatus.APPROVED) {
+      const student = classAndTutor.class.student;
+      const studentFullName = `${student.firstName} ${student.middleName} ${student.lastName}`;
+
+      if (isDesignated) {
+        // Notify student
+        await this.mailService.sendTutoringRequestAccepted({
+          email: student.email,
+          name: studentFullName,
+        }, {
+          tutorName: tutorFullName,
+          urlToCourse,
+          urlToMyClasses,
+        });
+      }
+      else {
+        // Notify tutor
+        await this.mailService.sendClassApplicationAccepted({
+          email: tutor.email,
+          name: tutorFullName,
+        }, {
+          urlToCourse,
+          urlToMyClasses,
+        });
+      }
     }
   }
 }

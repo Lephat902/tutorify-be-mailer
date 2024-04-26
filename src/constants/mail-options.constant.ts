@@ -8,8 +8,10 @@ export enum MailType {
     SEND_NEW_PASSWORD,
     CLASS_SESSION_CREATED,
     CLASS_SESSION_FEEDBACK_UPDATED,
-    TUTORING_REQUESTS_CREATED, // class application created by student
+    TUTORING_REQUEST_CREATED, // class application created by student
     CLASS_APPLICATION_CREATED, // class application created by tutor
+    TUTORING_REQUEST_ACCEPTED,
+    CLASS_APPLICATION_ACCEPTED,
 }
 
 export const MailOptions: Record<
@@ -47,7 +49,7 @@ export const MailOptions: Record<
         subject: 'Class Session Feedback Updated',
         template: './session-feedback-updated',
     },
-    [MailType.TUTORING_REQUESTS_CREATED]: {
+    [MailType.TUTORING_REQUEST_CREATED]: {
         from: '"Tutorify" <noreply@tutorify.com>',
         subject: 'New Tutoring Request Received',
         template: './notify-tutoring-request-to-tutor',
@@ -56,6 +58,16 @@ export const MailOptions: Record<
         from: '"Tutorify" <noreply@tutorify.com>',
         subject: 'New Class Application Received',
         template: './notify-class-application-to-student',
+    },
+    [MailType.TUTORING_REQUEST_ACCEPTED]: {
+        from: '"Tutorify" <noreply@tutorify.com>',
+        subject: 'Tutoring Request Accepted',
+        template: './notify-tutoring-request-accepted',
+    },
+    [MailType.CLASS_APPLICATION_ACCEPTED]: {
+        from: '"Tutorify" <noreply@tutorify.com>',
+        subject: 'Class Application Accepted',
+        template: './notify-class-application-accepted',
     },
 }
 
