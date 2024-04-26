@@ -1,7 +1,3 @@
-type ClassGraphQLResponse = {
-    data: Class;
-}
-
 type Class = {
     class: {
         student: {

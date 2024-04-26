@@ -2,6 +2,8 @@ import { Controller } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
 import { MailService } from '../mail.service';
 import {
+  ClassApplicationCreatedEventPattern,
+  ClassApplicationCreatedEventPayload,
   ClassSessionCreatedEventPattern,
   ClassSessionCreatedEventPayload,
   ClassSessionUpdatedEventPattern,
@@ -48,7 +50,7 @@ export class EventHandler {
   async handleClassSessionCreated(payload: ClassSessionCreatedEventPayload) {
     const { classId, classSessionId, title, startDatetime, endDatetime, createdAt } = payload;
     console.log(`Start sending session-created notifications`);
-    const classData = await this._APIGatewayProxy.getClassById(classId);
+    const classData = await this._APIGatewayProxy.getDataBySessionEventsHandler(classId);
     const student = classData.class.student;
     const studentFullName = `${student.firstName} ${student.middleName} ${student.lastName}`;
     const urlToSession = `https://www.tutorify.site/courses/${classId}/mysessions/${classSessionId}`;
@@ -69,12 +71,11 @@ export class EventHandler {
   @EventPattern(new ClassSessionUpdatedEventPattern())
   async handleClassSessionUpdated(payload: ClassSessionUpdatedEventPayload) {
     const { classId, classSessionId, title, updatedAt, feedbackUpdatedAt, tutorFeedback } = payload;
-    const classData = await this._APIGatewayProxy.getClassById(classId);
+    const classData = await this._APIGatewayProxy.getDataBySessionEventsHandler(classId);
     const student = classData.class.student;
     const studentFullName = `${student.firstName} ${student.middleName} ${student.lastName}`;
     const urlToSession = `https://www.tutorify.site/courses/${classId}/mysessions/${classSessionId}`;
 
-    console.log(updatedAt, feedbackUpdatedAt);
     if (updatedAt === feedbackUpdatedAt) {
       console.log(`Start sending session-feedback-updated notifications`);
       await this.mailService.sendSessionFeedbackUpdated({
@@ -85,6 +86,41 @@ export class EventHandler {
         sessionTitle: title,
         urlToSession,
         feedbackText: tutorFeedback,
+      });
+    }
+  }
+
+  @EventPattern(new ClassApplicationCreatedEventPattern())
+  async handleApplicationCreated(payload: ClassApplicationCreatedEventPayload) {
+    const { classId, tutorId, isDesignated } = payload;
+    const classAndTutor = await this._APIGatewayProxy.getDataByApplicationCreatedHandler(classId, tutorId);
+    const urlToClass = `https://www.tutorify.site/classes/${classId}`;
+    const tutor = classAndTutor.tutor;
+    const tutorFullName = `${tutor.firstName} ${tutor.middleName} ${tutor.lastName}`;
+
+    // Send email to tutor
+    if (isDesignated) {
+      await this.mailService.sendTutoringRequestCreated({
+        email: tutor.email,
+        name: tutorFullName,
+      }, {
+        classTitle: classAndTutor.class.title,
+        urlToClass,
+      });
+    }
+    // Send email to student
+    else {
+      const urlToTutor = `https://www.tutorify.site/tutors/${tutorId}`;
+      const student = classAndTutor.class.student;
+      const studentFullName = `${student.firstName} ${student.middleName} ${student.lastName}`;
+      await this.mailService.sendClassApplicationCreated({
+        email: student.email,
+        name: studentFullName,
+      }, {
+        classTitle: classAndTutor.class.title,
+        urlToClass,
+        tutorName: tutorFullName,
+        urlToTutor
       });
     }
   }

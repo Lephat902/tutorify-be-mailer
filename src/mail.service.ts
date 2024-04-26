@@ -20,6 +20,18 @@ type SessionFeedbackUpdatedEmailContent = {
   feedbackText: string,
 };
 
+type NewTutoringRequestEmailContent = {
+  classTitle: string,
+  urlToClass: string,
+};
+
+type NewClassApplicationEmailContent = {
+  classTitle: string,
+  urlToClass: string,
+  tutorName: string,
+  urlToTutor: string,
+};
+
 type MailContext = {
   name: string,
   url?: string,
@@ -27,6 +39,10 @@ type MailContext = {
 } | SessionCreatedEmailContent & {
   name: string,
 } | SessionFeedbackUpdatedEmailContent & {
+  name: string,
+} | NewTutoringRequestEmailContent & {
+  name: string,
+} | NewClassApplicationEmailContent & {
   name: string,
 };
 
@@ -75,6 +91,20 @@ export class MailService {
     await this.sendMail(user, MailType.CLASS_SESSION_FEEDBACK_UPDATED, {
       name: user.name,
       ...sessionFeedbackUpdatedEmailContent,
+    });
+  }
+
+  async sendTutoringRequestCreated(user: UserDto, newTutoringRequestEmailContent: NewTutoringRequestEmailContent) {
+    await this.sendMail(user, MailType.TUTORING_REQUESTS_CREATED, {
+      name: user.name,
+      ...newTutoringRequestEmailContent,
+    });
+  }
+
+  async sendClassApplicationCreated(user: UserDto, newClassApplicationEmailContent: NewClassApplicationEmailContent) {
+    await this.sendMail(user, MailType.CLASS_APPLICATION_CREATED, {
+      name: user.name,
+      ...newClassApplicationEmailContent,
     });
   }
 
