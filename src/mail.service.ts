@@ -12,80 +12,90 @@ export class MailService {
   ) { }
 
   async sendUserConfirmation(user: UserDto, token: string) {
+    const { email, name } = user;
     const url = `${this.configService.get('EMAIL_CONFIRMATION_PATH')}${token}`;
-    await this.sendMail(user, MailType.EMAIL_CONFIRMATION, {
-      name: user.name,
+    await this.sendMail(email, MailType.EMAIL_CONFIRMATION, {
+      name,
       url
     });
   }
 
   async sendNewPassword(user: UserDto, newPassword: string) {
-    await this.sendMail(user, MailType.SEND_NEW_PASSWORD, {
-      name: user.name,
+    const { email, name } = user;
+    await this.sendMail(email, MailType.SEND_NEW_PASSWORD, {
+      name,
       newPassword
     });
   }
 
   async sendTutorApproved(user: UserDto) {
-    await this.sendMail(user, MailType.TUTOR_APPROVED, {
-      name: user.name,
+    const { email, name } = user;
+    await this.sendMail(email, MailType.TUTOR_APPROVED, {
+      name,
     });
   }
 
   async sendTutorRejected(user: UserDto) {
-    await this.sendMail(user, MailType.TUTOR_REJECTED, {
-      name: user.name,
+    const { email, name } = user;
+    await this.sendMail(email, MailType.TUTOR_REJECTED, {
+      name,
     });
   }
 
   async sendSessionCreated(user: UserDto, sessionCreatedEmailContent: SessionCreatedEmailContent) {
-    await this.sendMail(user, MailType.CLASS_SESSION_CREATED, {
-      name: user.name,
+    const { email, name } = user;
+    await this.sendMail(email, MailType.CLASS_SESSION_CREATED, {
+      name,
       ...sessionCreatedEmailContent,
     });
   }
 
   async sendSessionFeedbackUpdated(user: UserDto, sessionFeedbackUpdatedEmailContent: SessionFeedbackUpdatedEmailContent) {
-    await this.sendMail(user, MailType.CLASS_SESSION_FEEDBACK_UPDATED, {
-      name: user.name,
+    const { email, name } = user;
+    await this.sendMail(email, MailType.CLASS_SESSION_FEEDBACK_UPDATED, {
+      name,
       ...sessionFeedbackUpdatedEmailContent,
     });
   }
 
   async sendTutoringRequestCreated(user: UserDto, newTutoringRequestEmailContent: NewTutoringRequestEmailContent) {
-    await this.sendMail(user, MailType.TUTORING_REQUEST_CREATED, {
-      name: user.name,
+    const { email, name } = user;
+    await this.sendMail(email, MailType.TUTORING_REQUEST_CREATED, {
+      name,
       ...newTutoringRequestEmailContent,
     });
   }
 
   async sendClassApplicationCreated(user: UserDto, newClassApplicationEmailContent: NewClassApplicationEmailContent) {
-    await this.sendMail(user, MailType.CLASS_APPLICATION_CREATED, {
-      name: user.name,
+    const { email, name } = user;
+    await this.sendMail(email, MailType.CLASS_APPLICATION_CREATED, {
+      name,
       ...newClassApplicationEmailContent,
     });
   }
 
   async sendTutoringRequestAccepted(user: UserDto, tutoringRequestAcceptedEmailContent: TutoringRequestAcceptedEmailContent) {
-    await this.sendMail(user, MailType.TUTORING_REQUEST_ACCEPTED, {
-      name: user.name,
+    const { email, name } = user;
+    await this.sendMail(email, MailType.TUTORING_REQUEST_ACCEPTED, {
+      name,
       ...tutoringRequestAcceptedEmailContent,
     });
   }
 
   async sendClassApplicationAccepted(user: UserDto, classApplicationAcceptedEmailContent: ClassApplicationAcceptedEmailContent) {
-    await this.sendMail(user, MailType.CLASS_APPLICATION_ACCEPTED, {
-      name: user.name,
+    const { email, name } = user;
+    await this.sendMail(email, MailType.CLASS_APPLICATION_ACCEPTED, {
+      name,
       ...classApplicationAcceptedEmailContent,
     });
   }
 
-  private async sendMail(user: UserDto, type: MailType, context: MailContext) {
+  private async sendMail(email: string, type: MailType, context: MailContext) {
     const mailOptions = MailOptions[type];
 
     await this.mailerService.sendMail({
       ...mailOptions,
-      to: user.email,
+      to: email,
       context,
     });
   }
