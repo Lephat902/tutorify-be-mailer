@@ -12,6 +12,7 @@ export enum MailType {
     CLASS_APPLICATION_CREATED, // class application created by tutor
     TUTORING_REQUEST_ACCEPTED,
     CLASS_APPLICATION_ACCEPTED,
+    TUTOR_APPLICATION_RECEIVED,
 }
 
 export const MailOptions: Record<
@@ -68,6 +69,11 @@ export const MailOptions: Record<
         from: '"Tutorify" <noreply@tutorify.com>',
         subject: 'Class Application Accepted',
         template: './notify-class-application-accepted',
+    },
+    [MailType.TUTOR_APPLICATION_RECEIVED]: {
+        from: '"Tutorify" <noreply@tutorify.com>',
+        subject: 'Application Received',
+        template: './tutor-application-received',
     },
 }
 

@@ -35,7 +35,7 @@ type TutoringRequestAcceptedEmailContent = {
     tutorName: string,
     urlToCourse: string,
     urlToMyClasses: string,
-};;
+};
 
 type MailContext = {
     name: string,

@@ -15,6 +15,9 @@ import {
   TutorApprovedEventPayload,
   TutorRejectedEventPattern,
   TutorRejectedEventPayload,
+  UserCreatedEventPattern,
+  UserCreatedEventPayload,
+  UserRole,
 } from '@tutorify/shared';
 import { APIGatewayProxy } from 'src/proxies';
 
@@ -24,6 +27,25 @@ export class EventHandler {
     private readonly mailService: MailService,
     private readonly _APIGatewayProxy: APIGatewayProxy,
   ) { }
+
+  @EventPattern(new UserCreatedEventPattern())
+  async handleUserCreated(payload: UserCreatedEventPayload) {
+    const { role } = payload;
+    if (role === UserRole.TUTOR) {
+      await this.handleTutorCreated(payload);
+    }
+  }
+
+  private async handleTutorCreated(payload: UserCreatedEventPayload) {
+    const { email, firstName, middleName, lastName } = payload;
+    const fullName = `${firstName} ${middleName} ${lastName}`;
+    console.log(`Start sending tutor-application received email to tutor ${fullName}`);
+
+    await this.mailService.sendTutorApplicationReceived({
+      email,
+      name: fullName,
+    });
+  }
 
   @EventPattern(new TutorApprovedEventPattern())
   async handleTutorApproved(payload: TutorApprovedEventPayload) {

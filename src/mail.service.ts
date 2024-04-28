@@ -90,6 +90,13 @@ export class MailService {
     });
   }
 
+  async sendTutorApplicationReceived(user: UserDto) {
+    const { email, name } = user;
+    await this.sendMail(email, MailType.TUTOR_APPLICATION_RECEIVED, {
+      name,
+    });
+  }
+
   private async sendMail(email: string, type: MailType, context: MailContext) {
     const mailOptions = MailOptions[type];
 
