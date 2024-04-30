@@ -5,7 +5,7 @@
   "entryFile": "./app/src/main.js",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": ["**/*.hbs", "**/*.png"],
+    "assets": ["**/*.hbs", "**/*.png", "**/*.css"],
     "watchAssets": true
   }
 }

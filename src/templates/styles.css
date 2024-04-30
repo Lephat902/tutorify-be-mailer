@@ -1,0 +1,117 @@
+* {
+    color: #334155;
+}
+
+body {
+    word-break: break-word;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    width: 100%;
+    background-color: #f8fafc;
+    padding: 0;
+}
+
+p {
+    margin: 0;
+    margin-bottom: 16px;
+}
+
+.hover-bg-primary-light:hover {
+    background-color: #f0a500 !important;
+}
+
+.hover-text-decoration-underline:hover {
+    text-decoration: underline;
+}
+
+.header {
+    padding-top: 32px;
+    padding-bottom: 32px;
+}
+
+.header>img,
+.header>b {
+    vertical-align: middle;
+    font-size: 42px;
+    max-width: 54px;
+    max-height: 54px;
+    padding-right: 5px;
+}
+
+table.cl-session {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.cl-session th,
+table.cl-session td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+table.cl-session th {
+    background-color: #f0a500;
+    color: white;
+}
+
+blockquote {
+    background: #f9f9f9;
+    border-left: 10px solid #ccc;
+    margin: 1.5em 10px;
+    padding: 0.5em 10px;
+    quotes: "\201C" "\201D" "\2018" "\2019";
+}
+
+blockquote:before {
+    color: #ccc;
+    content: open-quote;
+    font-size: 4em;
+    line-height: 0.1em;
+    margin-right: 0.25em;
+    vertical-align: -0.4em;
+}
+
+blockquote p {
+    display: inline;
+}
+
+@media (max-width: 600px) {
+    .sm-w-full {
+        width: 100% !important;
+    }
+
+    .sm-py-8 {
+        padding-top: 32px !important;
+        padding-bottom: 32px !important;
+    }
+
+    .sm-px-6 {
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+    }
+
+    .sm-leading-8 {
+        line-height: 32px !important;
+    }
+}
+
+.hover-bg-primary-light {
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 4px;
+    background-color: #f0a500;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 16px;
+    padding-right: 16px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.hover-bg-primary-light span {
+    mso-text-raise: 16px;
+    color: inherit;
+}

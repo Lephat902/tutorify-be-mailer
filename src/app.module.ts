@@ -1,12 +1,12 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { MailService } from './mail.service';
-import { Controllers } from './controllers';
-import { PATH_TO_TEMPLATES_DIR } from './constants';
-import { APIGatewayProxy } from './proxies';
 import { HttpModule } from '@nestjs/axios';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PATH_TO_TEMPLATES_DIR } from './constants';
+import { Controllers } from './controllers';
+import { MailService } from './mail.service';
+import { APIGatewayProxy } from './proxies';
 
 @Module({
   imports: [
@@ -31,9 +31,21 @@ import { HttpModule } from '@nestjs/axios';
         },
         template: {
           dir: PATH_TO_TEMPLATES_DIR,
-          adapter: new HandlebarsAdapter(),
+          adapter: new HandlebarsAdapter(undefined, {
+            inlineCssOptions: {
+              baseUrl: 'file://' + PATH_TO_TEMPLATES_DIR + '/styles.css',
+            },
+          }),
           options: {
             strict: true,
+          },
+        },
+        options: {
+          partials: {
+            dir: PATH_TO_TEMPLATES_DIR + '/common',
+            options: {
+              strict: true,
+            },
           },
         },
       }),
@@ -43,4 +55,4 @@ import { HttpModule } from '@nestjs/axios';
   providers: [MailService, APIGatewayProxy],
   controllers: Controllers,
 })
-export class AppModule {}
+export class AppModule { }

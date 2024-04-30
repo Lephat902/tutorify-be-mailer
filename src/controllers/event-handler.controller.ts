@@ -1,6 +1,5 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
-import { MailService } from '../mail.service';
 import {
   ApplicationStatus,
   ClassApplicationCreatedEventPattern,
@@ -17,9 +16,10 @@ import {
   TutorRejectedEventPayload,
   UserCreatedEventPattern,
   UserCreatedEventPayload,
-  UserRole,
+  UserRole
 } from '@tutorify/shared';
 import { APIGatewayProxy } from 'src/proxies';
+import { MailService } from '../mail.service';
 
 @Controller()
 export class EventHandler {
