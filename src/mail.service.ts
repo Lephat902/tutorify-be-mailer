@@ -20,6 +20,15 @@ export class MailService {
     });
   }
 
+  async sendResetPassword(user: UserDto, token: string) {
+    const { email, name } = user;
+    const url = `${this.configService.get('RESET_PASSWORD_PATH')}${token}`;
+    await this.sendMail(email, MailType.RESET_PASSWORD, {
+      name,
+      url
+    });
+  }
+
   async sendNewPassword(user: UserDto, newPassword: string) {
     const { email, name } = user;
     await this.sendMail(email, MailType.SEND_NEW_PASSWORD, {

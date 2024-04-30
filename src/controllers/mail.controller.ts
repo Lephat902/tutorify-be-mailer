@@ -14,6 +14,13 @@ export class MailController {
     return true;
   }
 
+  @MessagePattern({ cmd: 'resetPassword' })
+  async resetPassword(data: { user: UserDto; token: string }) {
+    const { user, token } = data;
+    await this.mailService.sendResetPassword(user, token);
+    return true;
+  }
+
   @MessagePattern({ cmd: 'sendNewPassword' })
   async sendNewPassword(data: { user: UserDto; newPassword: string }) {
     const { user, newPassword } = data;
