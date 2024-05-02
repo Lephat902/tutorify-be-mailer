@@ -14,6 +14,13 @@ type SessionFeedbackUpdatedEmailContent = {
     feedbackText: string,
 };
 
+type SessionCancelledEmailContent = {
+    classTitle: string,
+    sessionTitle: string,
+    urlToSession: string,
+    cancellationReason: string,
+};
+
 type NewTutoringRequestEmailContent = {
     classTitle: string,
     urlToClass: string,
@@ -44,6 +51,8 @@ type MailContext = {
 } | SessionCreatedEmailContent & {
     name: string,
 } | SessionFeedbackUpdatedEmailContent & {
+    name: string,
+} | SessionCancelledEmailContent & {
     name: string,
 } | NewTutoringRequestEmailContent & {
     name: string,

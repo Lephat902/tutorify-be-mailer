@@ -67,6 +67,14 @@ export class MailService {
     });
   }
 
+  async sendSessionCancelled(user: UserDto, sessionCancelledEmailContent: SessionCancelledEmailContent) {
+    const { email, name } = user;
+    await this.sendMail(email, MailType.CLASS_SESSION_CANCELLED, {
+      name,
+      ...sessionCancelledEmailContent,
+    });
+  }
+
   async sendTutoringRequestCreated(user: UserDto, newTutoringRequestEmailContent: NewTutoringRequestEmailContent) {
     const { email, name } = user;
     await this.sendMail(email, MailType.TUTORING_REQUEST_CREATED, {

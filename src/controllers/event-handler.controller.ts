@@ -112,6 +112,17 @@ export class EventHandler {
         urlToSession,
         feedbackText: tutorFeedback,
       });
+    } else if (isCancelled && updatedAt) {
+      console.log(`Start sending session-cancelled notifications`);
+      await this.mailService.sendSessionCancelled({
+        email: student.email,
+        name: studentFullName,
+      }, {
+        classTitle: classData.class.title,
+        sessionTitle: title,
+        urlToSession,
+        cancellationReason: tutorFeedback,
+      });
     }
   }
 
