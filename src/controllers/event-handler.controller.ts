@@ -95,13 +95,13 @@ export class EventHandler {
 
   @EventPattern(new ClassSessionUpdatedEventPattern())
   async handleClassSessionUpdated(payload: ClassSessionUpdatedEventPayload) {
-    const { classId, classSessionId, title, updatedAt, feedbackUpdatedAt, tutorFeedback } = payload;
+    const { classId, classSessionId, title, updatedAt, feedbackUpdatedAt, tutorFeedback, isCancelled } = payload;
     const classData = await this._APIGatewayProxy.getDataBySessionEventsHandler(classId);
     const student = classData.class.student;
     const studentFullName = `${student.firstName} ${student.middleName} ${student.lastName}`;
     const urlToSession = `https://www.tutorify.site/courses/${classId}/mysessions/${classSessionId}`;
 
-    if (updatedAt === feedbackUpdatedAt) {
+    if (!isCancelled && updatedAt && updatedAt === feedbackUpdatedAt) {
       console.log(`Start sending session-feedback-updated notifications`);
       await this.mailService.sendSessionFeedbackUpdated({
         email: student.email,
