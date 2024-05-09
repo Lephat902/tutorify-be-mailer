@@ -5,6 +5,7 @@ type SessionCreatedEmailContent = {
     endDatetime: string,
     createdAt: string,
     urlToSession: string,
+    numOfOtherSessionsCreatedInBatch: number,
 };
 
 type SessionFeedbackUpdatedEmailContent = {

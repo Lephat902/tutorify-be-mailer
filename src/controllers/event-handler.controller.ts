@@ -73,7 +73,11 @@ export class EventHandler {
 
   @EventPattern(new ClassSessionCreatedEventPattern())
   async handleClassSessionCreated(payload: ClassSessionCreatedEventPayload) {
-    const { classId, classSessionId, title, startDatetime, endDatetime, createdAt } = payload;
+    // Ignore other recurring sessions
+    if (!payload.isFirstSessionInBatch) {
+      return;
+    }
+    const { classId, classSessionId, title, startDatetime, endDatetime, createdAt, numOfSessionsCreatedInBatch } = payload;
     console.log(`Start sending session-created notifications`);
     const classData = await this._APIGatewayProxy.getDataBySessionEventsHandler(classId);
     const student = classData.class.student;
@@ -90,6 +94,7 @@ export class EventHandler {
       endDatetime: new Date(endDatetime).toUTCString(),
       createdAt: new Date(createdAt).toUTCString(),
       urlToSession,
+      numOfOtherSessionsCreatedInBatch: numOfSessionsCreatedInBatch - 1,
     });
   }
 
