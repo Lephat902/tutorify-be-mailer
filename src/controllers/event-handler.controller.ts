@@ -169,6 +169,9 @@ export class EventHandler {
   @EventPattern(new ClassApplicationUpdatedEventPattern())
   async handleApplicationStatusChanged(payload: ClassApplicationUpdatedEventPayload) {
     const { classId, tutorId, newStatus, isDesignated } = payload;
+    // Avoid unneccessary queries
+    if (newStatus !== ApplicationStatus.APPROVED)
+      return;
     const classAndTutor = await this._APIGatewayProxy.getDataByApplicationCreatedHandler(classId, tutorId);
     const urlToCourse = `https://www.tutorify.site/courses/${classId}`;
     const urlToMyClasses = 'https://www.tutorify.site/myclasses';

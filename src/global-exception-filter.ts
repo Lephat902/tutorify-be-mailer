@@ -11,7 +11,7 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
     } else if (exception instanceof HttpException) {
       throw new RpcException(exception.getResponse());
     } else {
-      throw exception;
+      throw new RpcException("Something wrong");
     }
   }
 }

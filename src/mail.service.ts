@@ -115,6 +115,14 @@ export class MailService {
   }
 
   private async sendMail(email: string, type: MailType, context: MailContext) {
+    const blockedDomains = process.env.BLOCKED_DOMAINS.split(',');
+    const domain = email.split('@')[1];
+
+    if (blockedDomains.includes(domain)) {
+      console.log(`Blocked domain. Email to ${email} not sent.`);
+      return;
+    }
+
     const mailOptions = MailOptions[type];
 
     await this.mailerService.sendMail({
