@@ -1,11 +1,7 @@
 {{#> emailFrame}}
 <p>Dear {{name}},</p>
 <p>We are excited to announce a new session of the class
-    <b>{{classTitle}}</b>
-    {{#if numOfOtherSessionsCreatedInBatch}}
-    along with <b>{{numOfOtherSessionsCreatedInBatch}}</b> other recurring sessions
-    {{/if}}.
-    Here are the details:
+    <b>{{classTitle}}</b>{{#if numOfOtherSessionsCreatedInBatch}} along with <b>{{numOfOtherSessionsCreatedInBatch}}</b> other recurring sessions.{{else}}.{{/if}} Here are the details:
 </p>
 <table class="cl-session">
     <tr>
