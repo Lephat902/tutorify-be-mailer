@@ -32,6 +32,7 @@
     "amqplib": "^0.10.4",
     "axios": "^1.6.8",
     "handlebars": "^4.7.8",
+    "ics": "^3.7.2",
     "nodemailer": "^6.9.13",
     "preview-email": "^3.0.19",
     "reflect-metadata": "^0.2.1",
