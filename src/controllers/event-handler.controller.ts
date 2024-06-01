@@ -6,8 +6,8 @@ import {
   ClassApplicationCreatedEventPayload,
   ClassApplicationUpdatedEventPattern,
   ClassApplicationUpdatedEventPayload,
-  ClassSessionCreatedEventPattern,
-  ClassSessionCreatedEventPayload,
+  MultiClassSessionsCreatedEventPattern,
+  MultiClassSessionsCreatedEventPayload,
   ClassSessionUpdatedEventPattern,
   ClassSessionUpdatedEventPayload,
   TutorApprovedEventPattern,
@@ -71,27 +71,25 @@ export class EventHandler {
     });
   }
 
-  @EventPattern(new ClassSessionCreatedEventPattern())
-  async handleClassSessionCreated(payload: ClassSessionCreatedEventPayload) {
-    // Ignore other recurring sessions
-    if (!payload.isFirstSessionInBatch) {
-      return;
-    }
-    const { classId, classSessionId, title, startDatetime, endDatetime, createdAt, numOfSessionsCreatedInBatch } = payload;
+  @EventPattern(new MultiClassSessionsCreatedEventPattern())
+  async handleClassSessionCreated(payload: MultiClassSessionsCreatedEventPayload) {
+    const { classId, classSessionId, sessionsDetails, createdAt } = payload;
+    const numOfSessionsCreatedInBatch = sessionsDetails.length;
     console.log(`Start sending session-created notifications`);
     const classData = await this._APIGatewayProxy.getDataBySessionEventsHandler(classId);
     const student = classData.class.student;
     const studentFullName = `${student.firstName} ${student.middleName} ${student.lastName}`;
     const urlToSession = `https://www.tutorify.site/courses/${classId}/mysessions/${classSessionId}`;
 
+    const firstSession = sessionsDetails[0];
     await this.mailService.sendSessionCreated({
       email: student.email,
       name: studentFullName,
     }, {
       classTitle: classData.class.title,
-      sessionTitle: title,
-      startDatetime: new Date(startDatetime).toUTCString(),
-      endDatetime: new Date(endDatetime).toUTCString(),
+      sessionTitle: firstSession.title,
+      startDatetime: new Date(firstSession.startDatetime).toUTCString(),
+      endDatetime: new Date(firstSession.endDatetime).toUTCString(),
       createdAt: new Date(createdAt).toUTCString(),
       urlToSession,
       numOfOtherSessionsCreatedInBatch: numOfSessionsCreatedInBatch - 1,
