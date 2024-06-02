@@ -10,7 +10,7 @@ export class MailService {
   constructor(
     private readonly mailerService: MailerService,
     private readonly configService: ConfigService
-  ) {}
+  ) { }
 
   async sendUserConfirmation(user: UserDto, token: string) {
     const { email, name } = user;
@@ -157,12 +157,13 @@ export class MailService {
     }
 
     const mailOptions = MailOptions[type];
-
-    await this.mailerService.sendMail({
+    const newMailOptions = {
       ...mailOptions,
       to: email,
       context,
-      attachments,
-    });
+      attachments: [...mailOptions.attachments, ...attachments],
+    };
+
+    await this.mailerService.sendMail(newMailOptions);
   }
 }
