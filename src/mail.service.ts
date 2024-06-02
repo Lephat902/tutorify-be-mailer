@@ -1,11 +1,9 @@
 import { MailerService } from "@nestjs-modules/mailer";
 import { Injectable } from "@nestjs/common";
-import { UserDto } from "src/dto/user.dto";
 import { ConfigService } from "@nestjs/config";
-import { MailType, MailOptions } from "./constants";
-import { ICSContentDto } from "src/dto/ics-content.dto";
-import { EventAttributes, createEvents } from "ics";
-import { template } from "handlebars";
+import { Attachment } from "nodemailer/lib/mailer";
+import { UserDto } from "src/dto/user.dto";
+import { MailOptions, MailType } from "./constants";
 
 @Injectable()
 export class MailService {
@@ -56,13 +54,19 @@ export class MailService {
 
   async sendSessionCreated(
     user: UserDto,
-    sessionCreatedEmailContent: SessionCreatedEmailContent
+    sessionCreatedEmailContent: SessionCreatedEmailContent,
+    attachments: Attachment[]
   ) {
     const { email, name } = user;
-    await this.sendMail(email, MailType.CLASS_SESSION_CREATED, {
-      name,
-      ...sessionCreatedEmailContent,
-    });
+    await this.sendMail(
+      email,
+      MailType.CLASS_SESSION_CREATED,
+      {
+        name,
+        ...sessionCreatedEmailContent,
+      },
+      attachments
+    );
   }
 
   async sendSessionFeedbackUpdated(
@@ -138,7 +142,12 @@ export class MailService {
     });
   }
 
-  private async sendMail(email: string, type: MailType, context: MailContext) {
+  private async sendMail(
+    email: string,
+    type: MailType,
+    context: MailContext,
+    attachments: Attachment[] = []
+  ) {
     const blockedDomains = process.env.BLOCKED_DOMAINS.split(",");
     const domain = email.split("@")[1];
 
@@ -153,83 +162,7 @@ export class MailService {
       ...mailOptions,
       to: email,
       context,
-    });
-  }
-
-  async sendMultipleSessionCreated(
-    student: UserDto,
-    tutor: UserDto,
-    icsContent: ICSContentDto
-  ) {
-    const endDate = new Date(icsContent.endDateForRecurringSessions);
-    console.log("endDate ", endDate);
-    endDate.setHours(23);
-    endDate.setMinutes(59);
-    endDate.setSeconds(59);
-    const icsDateTime =
-      endDate.toISOString().replace(/[-:]/g, "").substring(0, 15) + "Z";
-    const endRule = `UNTIL=${icsDateTime}`;
-
-    console.log("timeSlots: ", icsContent.timeSlots);
-
-    const events = icsContent.timeSlots.map(
-      (timeSlot) =>
-        ({
-          start: new Date(timeSlot.startTime).getTime(),
-          startInputType: "utc",
-          startOutputType: "utc",
-          endInputType: "utc",
-          endOutputType: "utc",
-          end: new Date(timeSlot.endTime).getTime(),
-          title: icsContent.title,
-          description: icsContent.description,
-          status: "TENTATIVE",
-          organizer: tutor,
-          attendees: [
-            {
-              ...student,
-              rsvp: true,
-              partstat: "TENTATIVE",
-              role: "REQ-PARTICIPANT",
-            },
-          ],
-          recurrenceRule: `FREQ=WEEKLY;BYDAY=${timeSlot.weekday.substring(0, 2)};INTERVAL=1;${endRule}`,
-        }) as EventAttributes
-    );
-
-    createEvents(events, async (error, value) => {
-      if (error) {
-        console.log(error);
-        return;
-      }
-
-      const mailOptions = {
-        from: '"Tutorify" <noreply@tutorify.site>',
-        subject: "New class sessions to Google Calendar",
-        template: "./session-created",
-        attachments: [
-          {
-            filename: "events.ics",
-            content: value,
-          },
-        ],
-      };
-
-      console.log("student mail: ", student.email);
-      console.log("tutor email: ", tutor.email);
-      console.log("value: ", value);
-
-      const sendMailToStudentPromise = this.mailerService.sendMail({
-        to: student.email,
-        ...mailOptions,
-      });
-
-      const sendMailToTutorPromise = this.mailerService.sendMail({
-        to: tutor.email,
-        ...mailOptions,
-      });
-
-      await Promise.all([sendMailToStudentPromise, sendMailToTutorPromise]);
+      attachments,
     });
   }
 }

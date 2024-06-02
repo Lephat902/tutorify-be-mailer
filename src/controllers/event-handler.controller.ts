@@ -6,12 +6,10 @@ import {
   ClassApplicationCreatedEventPayload,
   ClassApplicationUpdatedEventPattern,
   ClassApplicationUpdatedEventPayload,
-  MultiClassSessionsCreatedEventPattern,
-  MultiClassSessionsCreatedEventPayload,
   ClassSessionUpdatedEventPattern,
   ClassSessionUpdatedEventPayload,
-  MultipleClassSessionsCreatedEventPattern,
-  MultipleClassSessionsCreatedPayload,
+  MultiClassSessionsCreatedEventPattern,
+  MultiClassSessionsCreatedEventPayload,
   TutorApprovedEventPattern,
   TutorApprovedEventPayload,
   TutorRejectedEventPattern,
@@ -20,8 +18,10 @@ import {
   UserCreatedEventPayload,
   UserRole,
 } from "@tutorify/shared";
+import { EventAttributes, createEvents } from "ics";
 import { APIGatewayProxy } from "src/proxies";
 import { MailService } from "../mail.service";
+import { UserDto } from "src/dto/user.dto";
 
 @Controller()
 export class EventHandler {
@@ -79,7 +79,8 @@ export class EventHandler {
   async handleClassSessionCreated(
     payload: MultiClassSessionsCreatedEventPayload
   ) {
-    const { classId, classSessionId, sessionsDetails, createdAt } = payload;
+    const { classId, classSessionId, sessionsDetails, createdAt, tutorId } =
+      payload;
     const numOfSessionsCreatedInBatch = sessionsDetails.length;
     console.log(`Start sending session-created notifications`);
     const classData =
@@ -89,20 +90,54 @@ export class EventHandler {
     const urlToSession = `https://www.tutorify.site/courses/${classId}/mysessions/${classSessionId}`;
 
     const firstSession = sessionsDetails[0];
-    await this.mailService.sendSessionCreated(
+
+    const tutorData = await this._APIGatewayProxy.getTutorDatabyId(tutorId);
+    const tutor = tutorData.tutor;
+    const tutorFullName = `${tutor.firstName} ${tutor.middleName} ${tutor.lastName}`;
+
+    const events = this.generateICSEventsForCreatedSessions(
+      sessionsDetails,
+      classData
+    ) as EventAttributes[];
+
+    const { value, error } = createEvents(events);
+
+    if (error) return;
+
+    console.log("value ", value);
+
+    const recipients: UserDto[] = [
       {
         email: student.email,
         name: studentFullName,
       },
       {
-        classTitle: classData.class.title,
-        sessionTitle: firstSession.title,
-        startDatetime: new Date(firstSession.startDatetime).toUTCString(),
-        endDatetime: new Date(firstSession.endDatetime).toUTCString(),
-        createdAt: new Date(createdAt).toUTCString(),
-        urlToSession,
-        numOfOtherSessionsCreatedInBatch: numOfSessionsCreatedInBatch - 1,
-      }
+        email: tutor.email,
+        name: tutorFullName,
+      },
+    ];
+
+    await Promise.all(
+      recipients.map((recipient) =>
+        this.mailService.sendSessionCreated(
+          recipient,
+          {
+            classTitle: classData.class.title,
+            sessionTitle: firstSession.title,
+            startDatetime: new Date(firstSession.startDatetime).toUTCString(),
+            endDatetime: new Date(firstSession.endDatetime).toUTCString(),
+            createdAt: new Date(createdAt).toUTCString(),
+            urlToSession,
+            numOfOtherSessionsCreatedInBatch: numOfSessionsCreatedInBatch - 1,
+          },
+          [
+            {
+              filename: "events.ics",
+              content: value,
+            },
+          ]
+        )
+      )
     );
   }
 
@@ -249,44 +284,37 @@ export class EventHandler {
     }
   }
 
-  @EventPattern(new MultipleClassSessionsCreatedEventPattern())
-  async handleMultipleClassSessionsCreateDto(
-    payload: MultipleClassSessionsCreatedPayload
+  generateICSEventsForCreatedSessions(
+    sessionsDetails: {
+      readonly title: string;
+      readonly startDatetime: Date;
+      readonly endDatetime: Date;
+    }[],
+    classData: Class
   ) {
-    const {
-      tutorId,
-      classId,
-      title,
-      description,
-      startDate,
-      timeSlots,
-      endDateForRecurringSessions,
-    } = payload;
-    console.log(`Start sending session-created ics file`);
-    const classData =
-      await this._APIGatewayProxy.getDataBySessionEventsHandler(classId);
-    const student = classData.class.student;
-    const studentFullName = `${student.firstName} ${student.middleName} ${student.lastName}`;
-    const tutorData = await this._APIGatewayProxy.getTutorDatabyId(tutorId);
-    const tutor = tutorData.tutor;
-    const tutorFullName = `${tutor.firstName} ${tutor.middleName} ${tutor.lastName}`;
+    return sessionsDetails.map((sessionsDetail) => ({
+      start: this.getTimeInVietnamFromDateTime(
+        sessionsDetail.startDatetime
+      ).getTime(),
+      startInputType: "utc",
+      startOutputType: "utc",
+      endInputType: "utc",
+      endOutputType: "utc",
+      end: this.getTimeInVietnamFromDateTime(
+        sessionsDetail.endDatetime
+      ).getTime(),
+      title: classData.class.title,
+      description: sessionsDetail.title,
+      status: "TENTATIVE",
+    }));
+  }
 
-    await this.mailService.sendMultipleSessionCreated(
-      {
-        name: studentFullName,
-        email: student.email,
-      },
-      {
-        name: tutorFullName,
-        email: tutor.email,
-      },
-      {
-        title,
-        description,
-        startDate,
-        timeSlots,
-        endDateForRecurringSessions,
-      }
+  getTimeInVietnamFromDateTime(date: Date) {
+    const dateObj = new Date(date);
+    const timezoneOffset = dateObj.getTimezoneOffset();
+    const vnOffset = -420;
+    return new Date(
+      dateObj.getTime() + (vnOffset + timezoneOffset) * 60 * 1000
     );
   }
 }
