@@ -1,31 +1,32 @@
-import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
-import { UserDto } from 'src/dto/user.dto';
-import { ConfigService } from '@nestjs/config';
-import { MailType, MailOptions } from './constants';
+import { MailerService } from "@nestjs-modules/mailer";
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Attachment } from "nodemailer/lib/mailer";
+import { UserDto } from "src/dto/user.dto";
+import { MailOptions, MailType } from "./constants";
 
 @Injectable()
 export class MailService {
   constructor(
     private readonly mailerService: MailerService,
-    private readonly configService: ConfigService,
-  ) { }
+    private readonly configService: ConfigService
+  ) {}
 
   async sendUserConfirmation(user: UserDto, token: string) {
     const { email, name } = user;
-    const url = `${this.configService.get('EMAIL_CONFIRMATION_PATH')}${token}`;
+    const url = `${this.configService.get("EMAIL_CONFIRMATION_PATH")}${token}`;
     await this.sendMail(email, MailType.EMAIL_CONFIRMATION, {
       name,
-      url
+      url,
     });
   }
 
   async sendResetPassword(user: UserDto, token: string) {
     const { email, name } = user;
-    const url = `${this.configService.get('RESET_PASSWORD_PATH')}${token}`;
+    const url = `${this.configService.get("RESET_PASSWORD_PATH")}${token}`;
     await this.sendMail(email, MailType.RESET_PASSWORD, {
       name,
-      url
+      url,
     });
   }
 
@@ -33,7 +34,7 @@ export class MailService {
     const { email, name } = user;
     await this.sendMail(email, MailType.SEND_NEW_PASSWORD, {
       name,
-      newPassword
+      newPassword,
     });
   }
 
@@ -51,15 +52,27 @@ export class MailService {
     });
   }
 
-  async sendSessionCreated(user: UserDto, sessionCreatedEmailContent: SessionCreatedEmailContent) {
+  async sendSessionCreated(
+    user: UserDto,
+    sessionCreatedEmailContent: SessionCreatedEmailContent,
+    attachments: Attachment[]
+  ) {
     const { email, name } = user;
-    await this.sendMail(email, MailType.CLASS_SESSION_CREATED, {
-      name,
-      ...sessionCreatedEmailContent,
-    });
+    await this.sendMail(
+      email,
+      MailType.CLASS_SESSION_CREATED,
+      {
+        name,
+        ...sessionCreatedEmailContent,
+      },
+      attachments
+    );
   }
 
-  async sendSessionFeedbackUpdated(user: UserDto, sessionFeedbackUpdatedEmailContent: SessionFeedbackUpdatedEmailContent) {
+  async sendSessionFeedbackUpdated(
+    user: UserDto,
+    sessionFeedbackUpdatedEmailContent: SessionFeedbackUpdatedEmailContent
+  ) {
     const { email, name } = user;
     await this.sendMail(email, MailType.CLASS_SESSION_FEEDBACK_UPDATED, {
       name,
@@ -67,7 +80,10 @@ export class MailService {
     });
   }
 
-  async sendSessionCancelled(user: UserDto, sessionCancelledEmailContent: SessionCancelledEmailContent) {
+  async sendSessionCancelled(
+    user: UserDto,
+    sessionCancelledEmailContent: SessionCancelledEmailContent
+  ) {
     const { email, name } = user;
     await this.sendMail(email, MailType.CLASS_SESSION_CANCELLED, {
       name,
@@ -75,7 +91,10 @@ export class MailService {
     });
   }
 
-  async sendTutoringRequestCreated(user: UserDto, newTutoringRequestEmailContent: NewTutoringRequestEmailContent) {
+  async sendTutoringRequestCreated(
+    user: UserDto,
+    newTutoringRequestEmailContent: NewTutoringRequestEmailContent
+  ) {
     const { email, name } = user;
     await this.sendMail(email, MailType.TUTORING_REQUEST_CREATED, {
       name,
@@ -83,7 +102,10 @@ export class MailService {
     });
   }
 
-  async sendClassApplicationCreated(user: UserDto, newClassApplicationEmailContent: NewClassApplicationEmailContent) {
+  async sendClassApplicationCreated(
+    user: UserDto,
+    newClassApplicationEmailContent: NewClassApplicationEmailContent
+  ) {
     const { email, name } = user;
     await this.sendMail(email, MailType.CLASS_APPLICATION_CREATED, {
       name,
@@ -91,7 +113,10 @@ export class MailService {
     });
   }
 
-  async sendTutoringRequestAccepted(user: UserDto, tutoringRequestAcceptedEmailContent: TutoringRequestAcceptedEmailContent) {
+  async sendTutoringRequestAccepted(
+    user: UserDto,
+    tutoringRequestAcceptedEmailContent: TutoringRequestAcceptedEmailContent
+  ) {
     const { email, name } = user;
     await this.sendMail(email, MailType.TUTORING_REQUEST_ACCEPTED, {
       name,
@@ -99,7 +124,10 @@ export class MailService {
     });
   }
 
-  async sendClassApplicationAccepted(user: UserDto, classApplicationAcceptedEmailContent: ClassApplicationAcceptedEmailContent) {
+  async sendClassApplicationAccepted(
+    user: UserDto,
+    classApplicationAcceptedEmailContent: ClassApplicationAcceptedEmailContent
+  ) {
     const { email, name } = user;
     await this.sendMail(email, MailType.CLASS_APPLICATION_ACCEPTED, {
       name,
@@ -114,9 +142,14 @@ export class MailService {
     });
   }
 
-  private async sendMail(email: string, type: MailType, context: MailContext) {
-    const blockedDomains = process.env.BLOCKED_DOMAINS.split(',');
-    const domain = email.split('@')[1];
+  private async sendMail(
+    email: string,
+    type: MailType,
+    context: MailContext,
+    attachments: Attachment[] = []
+  ) {
+    const blockedDomains = process.env.BLOCKED_DOMAINS.split(",");
+    const domain = email.split("@")[1];
 
     if (blockedDomains.includes(domain)) {
       console.log(`Blocked domain. Email to ${email} not sent.`);
@@ -129,6 +162,7 @@ export class MailService {
       ...mailOptions,
       to: email,
       context,
+      attachments,
     });
   }
 }
